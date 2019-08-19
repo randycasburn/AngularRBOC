@@ -1,12 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { first } from 'rxjs/operators';
 
 import { AuthenticationService } from '../services/authentication.service';
-import {UserService} from "../services/user.service";
-import {User} from "../models/user";
+import {UserService} from '../services/user.service';
+import {User} from '../models/user';
 
 @Component({templateUrl: 'home.component.html'})
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   currentUser: User;
   userFromApi: User;
 

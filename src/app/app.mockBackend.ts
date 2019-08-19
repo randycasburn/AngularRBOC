@@ -1,17 +1,17 @@
-import { Injectable } from '@angular/core';
-import { HttpRequest, HttpResponse, HttpHandler, HttpEvent, HttpInterceptor, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
-import { delay, mergeMap, materialize, dematerialize } from 'rxjs/operators';
+import {Injectable} from '@angular/core';
+import {HttpRequest, HttpResponse, HttpHandler, HttpEvent, HttpInterceptor} from '@angular/common/http';
+import {Observable, of, throwError} from 'rxjs';
+import {delay, mergeMap, materialize, dematerialize} from 'rxjs/operators';
 
-import { User} from './models/user';
-import {Role} from "./models/role";
+import {User} from './models/user';
+import {Role} from './models/role';
 
 @Injectable()
 export class AppMockBackend implements HttpInterceptor {
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const users: User[] = [
-      { id: 1, username: 'admin', password: 'admin', firstName: 'Admin', lastName: 'User', role: Role.Admin },
-      { id: 2, username: 'user', password: 'user', firstName: 'Normal', lastName: 'User', role: Role.User }
+      {id: 1, username: 'admin', password: 'admin', firstName: 'Admin', lastName: 'User', role: Role.Admin},
+      {id: 2, username: 'user', password: 'user', firstName: 'Normal', lastName: 'User', role: Role.User}
     ];
 
     const authHeader = request.headers.get('Authorization');
@@ -25,7 +25,9 @@ export class AppMockBackend implements HttpInterceptor {
       // authenticate - public
       if (request.url.endsWith('/users/authenticate') && request.method === 'POST') {
         const user = users.find(x => x.username === request.body.username && x.password === request.body.password);
-        if (!user) return error('Username or password is incorrect');
+        if (!user) {
+          return error('Username or password is incorrect');
+        }
         return ok({
           id: user.id,
           username: user.username,
@@ -38,15 +40,19 @@ export class AppMockBackend implements HttpInterceptor {
 
       // get user by id - admin or user (user can only access their own record)
       if (request.url.match(/\/users\/\d+$/) && request.method === 'GET') {
-        if (!isLoggedIn) return unauthorised();
+        if (!isLoggedIn) {
+          return unauthorised();
+        }
 
         // get id from request url
-        let urlParts = request.url.split('/');
-        let id = parseInt(urlParts[urlParts.length - 1]);
+        const urlParts = request.url.split('/');
+        const id = parseInt(urlParts[urlParts.length - 1], 10);
 
         // only allow normal users access to their own record
         const currentUser = users.find(x => x.role === role);
-        if (id !== currentUser.id && role !== Role.Admin) return unauthorised();
+        if (id !== currentUser.id && role !== Role.Admin) {
+          return unauthorised();
+        }
 
         const user = users.find(x => x.id === id);
         return ok(user);
@@ -54,14 +60,17 @@ export class AppMockBackend implements HttpInterceptor {
 
       // get all users (admin only)
       if (request.url.endsWith('/users') && request.method === 'GET') {
-        if (role !== Role.Admin) return unauthorised();
+        if (role !== Role.Admin) {
+          return unauthorised();
+        }
         return ok(users);
       }
 
       // pass through any requests not handled above
       return next.handle(request);
     }))
-    // call materialize and dematerialize to ensure delay even if an error is thrown (https://github.com/Reactive-Extensions/RxJS/issues/648)
+    // call materialize and dematerialize to ensure delay
+    // even if an error is thrown (https://github.com/Reactive-Extensions/RxJS/issues/648)
       .pipe(materialize())
       .pipe(delay(500))
       .pipe(dematerialize());
@@ -69,15 +78,15 @@ export class AppMockBackend implements HttpInterceptor {
     // private helper functions
 
     function ok(body) {
-      return of(new HttpResponse({ status: 200, body }));
+      return of(new HttpResponse({status: 200, body}));
     }
 
     function unauthorised() {
-      return throwError({ status: 401, error: { message: 'Unauthorised' } });
+      return throwError({status: 401, error: {message: 'Unauthorised'}});
     }
 
     function error(message) {
-      return throwError({ status: 400, error: { message } });
+      return throwError({status: 400, error: {message}});
     }
   }
 }

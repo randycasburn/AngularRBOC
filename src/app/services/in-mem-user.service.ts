@@ -7,23 +7,23 @@ import {Injectable} from '@angular/core';
 
 export class InMemUserService implements InMemoryDbService {
   createDb() {
-    let users = [
+    const users = [
       {
         id: 1,
-        username: "admin",
-        password: "admin",
-        firstName: "Admin",
-        lastName: "Administrator",
-        role: "admin",
-        token: "qwer"
+        username: 'admin',
+        password: 'admin',
+        firstName: 'Admin',
+        lastName: 'Administrator',
+        role: 'admin',
+        token: 'qwer'
       },      {
         id: 2,
-        username: "user",
-        password: "user",
-        firstName: "User",
-        lastName: "User Person",
-        role: "user",
-        token: "asdf"
+        username: 'user',
+        password: 'user',
+        firstName: 'User',
+        lastName: 'User Person',
+        role: 'user',
+        token: 'asdf'
       }
 
     ];
